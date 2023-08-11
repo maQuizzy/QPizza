@@ -13,7 +13,7 @@ namespace QPizza.API
 
             builder.Services
                 .AddApplication()
-                .AddInfrastructure();
+                .AddInfrastructure(builder.Configuration);
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
