@@ -1,4 +1,8 @@
 
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using QPizza.API.Errors;
+using QPizza.API.Filters;
+using QPizza.API.Middleware;
 using QPizza.Application;
 using QPizza.Application.Services.Authentication;
 using QPizza.Infrastructure;
@@ -16,6 +20,7 @@ namespace QPizza.API
                 .AddInfrastructure(builder.Configuration);
 
             builder.Services.AddControllers();
+            builder.Services.AddSingleton<ProblemDetailsFactory, QPizzaProblemDetailsFactory>();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
@@ -27,6 +32,8 @@ namespace QPizza.API
                 app.UseSwaggerUI();
             }
 
+            //app.UseMiddleware<ErrorHandlingMiddleware>();
+            app.UseExceptionHandler("/error");
             app.UseHttpsRedirection();
             app.MapControllers();
 
