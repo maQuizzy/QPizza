@@ -1,30 +1,37 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using ErrorOr;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using QPizza.Application.Services.Authentication;
 using QPizza.Contracts.Authentication;
 
 namespace QPizza.API.Controllers
 {
-    [ApiController]
     [Route("auth")]
-    public class AuthenticationController : ControllerBase
+    public class AuthenticationController : ApiController
     {
         private readonly IAuthenticationService _authenticationService;
 
         public AuthenticationController(IAuthenticationService authenticationService)
         {
             _authenticationService = authenticationService;
-        }   
+        }
 
         [HttpPost("register")]
         public IActionResult Register(RegisterRequest request)
         {
-            var authResult = _authenticationService.Register(
+            ErrorOr<AuthenticationResult> authResult = _authenticationService.Register(
                 request.FirstName,
                 request.LastName,
                 request.Email,
                 request.Password);
 
+            return authResult.Match(
+                authResult => Ok(MapAuthResult(authResult)),
+                errors => Problem(errors));
+        }
+
+        private static AuthenticationResponse MapAuthResult(AuthenticationResult authResult)
+        {
             var response = new AuthenticationResponse(
                 authResult.User.Id,
                 authResult.User.FirstName,
@@ -32,24 +39,19 @@ namespace QPizza.API.Controllers
                 authResult.User.Email,
                 authResult.Token);
 
-            return Ok(response);
+            return response;
         }
 
         [HttpPost("login")]
         public IActionResult Login(LoginRequest request)
         {
-            var authResult = _authenticationService.Login(
+            ErrorOr<AuthenticationResult> authResult = _authenticationService.Login(
                 request.Email,
                 request.Password);
 
-            var response = new AuthenticationResponse(
-                authResult.User.Id,
-                authResult.User.FirstName,
-                authResult.User.LastName,
-                authResult.User.Email,
-                authResult.Token);
-
-            return Ok(response);
+            return authResult.Match(
+                authResult => Ok(MapAuthResult(authResult)),
+                errors => Problem(errors));
         }
     }
 }

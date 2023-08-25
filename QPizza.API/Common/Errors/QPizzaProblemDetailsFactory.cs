@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
+using ErrorOr;
+using QPizza.API.Common.Http;
 
-namespace QPizza.API.Errors
+namespace QPizza.API.Common.Errors
 {
     public sealed class QPizzaProblemDetailsFactory : ProblemDetailsFactory
     {
@@ -89,6 +91,13 @@ namespace QPizza.API.Errors
             if (traceId != null)
             {
                 problemDetails.Extensions["traceId"] = traceId;
+            }
+
+            var errors = httpContext?.Items[HttpContextItemKeys.Errors] as List<Error>;
+
+            if (errors != null)
+            {
+                problemDetails.Extensions.Add("errorCodes", errors.Select(e => e.Code));
             }
 
             _configure?.Invoke(new() { HttpContext = httpContext!, ProblemDetails = problemDetails });

@@ -1,5 +1,7 @@
-﻿using QPizza.Application.Common.Interfaces.Authentication;
+﻿using ErrorOr;
+using QPizza.Application.Common.Interfaces.Authentication;
 using QPizza.Application.Common.Interfaces.Persistence;
+using QPizza.Domain.Common.Errors;
 using QPizza.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -22,11 +24,11 @@ namespace QPizza.Application.Services.Authentication
             _userRepository = userRepository;
         }
 
-        public AuthenticationResult Register(string firstName, string lastName, string email, string password)
+        public ErrorOr<AuthenticationResult> Register(string firstName, string lastName, string email, string password)
         {
             if(_userRepository.GetUserByEmail(email) != null) 
             {
-                throw new Exception("User with given email already exists.");
+                return Errors.User.DuplicateEmail;
             }
 
             var user = new User
@@ -46,16 +48,16 @@ namespace QPizza.Application.Services.Authentication
                 token);
         }
 
-        public AuthenticationResult Login(string email, string password)
+        public ErrorOr<AuthenticationResult> Login(string email, string password)
         {
             if (_userRepository.GetUserByEmail(email) is not User user)
             {
-                throw new Exception("User with given email does not exists.");
+                return Errors.Authentication.InvalidCredentials;
             }
 
             if (password != user.Password)
             {
-                throw new Exception("The password is incorrect.");
+                return Errors.Authentication.InvalidCredentials;
             }
 
             var token = _jwtTokenGenerator.GenerateToken(user);

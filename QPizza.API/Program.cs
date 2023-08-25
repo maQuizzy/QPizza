@@ -1,8 +1,5 @@
-
 using Microsoft.AspNetCore.Mvc.Infrastructure;
-using QPizza.API.Errors;
-using QPizza.API.Filters;
-using QPizza.API.Middleware;
+using QPizza.API.Common.Errors;
 using QPizza.Application;
 using QPizza.Application.Services.Authentication;
 using QPizza.Infrastructure;
