@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace QPizza.Application.Services.Authentication
+namespace QPizza.Application.Authentication.Common
 {
     public record AuthenticationResult(
         User User,
